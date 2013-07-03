@@ -8,6 +8,19 @@ static const char* szkey       = "Janur Kuning";
 static unsigned char plaintext[32];
 static unsigned char decipher[32];
 static unsigned char plaintext_recover[32];
+
+enum valid_t { valid, invalid };
+
+static valid_t validate(aesbyte_t* a, aesbyte_t* b,int length){
+    int idx;
+    for(idx=0;idx<length;++idx){
+        if((a[idx] ^ b[idx]) != 0){
+            return invalid;
+        }
+    }
+    return valid;
+}
+
 int main(){
     memcpy(aes.aeskey,szkey,16);
     memset(aes.initvector,0xDF,16);
