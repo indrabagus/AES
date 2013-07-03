@@ -394,15 +394,19 @@ aes128cipher_decipher(AES128* aes,int is_cipher){
     loop = (aes->inlength/16);
     while(loop>0){
         if(aes->aes_mode==AES_MODE_CBC){
-            xor_array(piterinput,pxorvector,piterinput,16);
+            xor_array(piterinput,pxorvector,padblock,16);
+            if(is_cipher)
+                aes_encrypt(padblock,aes->aeskey,piteroutput);
+            else
+                aes_decrypt(padblock,aes->aeskey,piteroutput);
+        }else{
+            if(is_cipher)
+                aes_encrypt(piterinput,aes->aeskey,piteroutput);
+            else
+                aes_decrypt(piterinput,aes->aeskey,piteroutput);
+
         }
 
-        if(is_cipher){
-            aes_encrypt(piterinput,aes->aeskey,piteroutput);
-        }
-        else{
-            aes_decrypt(piterinput,aes->aeskey,piteroutput);
-        }
         if(aes->aes_mode==AES_MODE_CBC){
             pxorvector = piteroutput;
         }
