@@ -372,8 +372,8 @@ aes_decrypt(const aesbyte_t* ciphered, const aesbyte_t* key,aesbyte_t* raw){
 }
 
 
-static int 
-aes128cipher_decipher(AES128* aes,int is_cipher){
+int 
+aes128_encipher(AES128* aes){
     int loop;
     aesbyte_t* piterinput;
     aesbyte_t* piteroutput;
@@ -395,21 +395,12 @@ aes128cipher_decipher(AES128* aes,int is_cipher){
     while(loop>0){
         if(aes->aes_mode==AES_MODE_CBC){
             xor_array(piterinput,pxorvector,padblock,16);
-            if(is_cipher)
-                aes_encrypt(padblock,aes->aeskey,piteroutput);
-            else
-                aes_decrypt(padblock,aes->aeskey,piteroutput);
-        }else{
-            if(is_cipher)
-                aes_encrypt(piterinput,aes->aeskey,piteroutput);
-            else
-                aes_decrypt(piterinput,aes->aeskey,piteroutput);
-
-        }
-
-        if(aes->aes_mode==AES_MODE_CBC){
+            aes_encrypt(padblock,aes->aeskey,piteroutput);
             pxorvector = piteroutput;
+        }else{
+            aes_encrypt(piterinput,aes->aeskey,piteroutput);
         }
+
         piterinput+=16;
         piteroutput+=16;
         --loop;
@@ -421,11 +412,7 @@ aes128cipher_decipher(AES128* aes,int is_cipher){
         if(aes->aes_mode==AES_MODE_CBC){
             xor_array(padblock,pxorvector,padblock,16);
         }
-        if(is_cipher){
-            aes_encrypt(padblock,aes->aeskey,piteroutput);
-        }else{
-            aes_decrypt(padblock,aes->aeskey,piteroutput);
-        }
+        aes_encrypt(padblock,aes->aeskey,piteroutput);
     }
 
 
@@ -435,13 +422,41 @@ aes128cipher_decipher(AES128* aes,int is_cipher){
 
 
 int 
-aes128_encipher(AES128* aes){
-    return aes128cipher_decipher(aes,AESTRUE);
-}
-int 
 aes128_decipher(AES128* aes){
-    return aes128cipher_decipher(aes,AESFALSE);
+    int loop;
+    aesbyte_t* piterinput;
+    aesbyte_t* piteroutput;
+    /* pointer yang digunakan saat mode CBC */
+    aesbyte_t* pxorvector; 
+    static aesbyte_t padblock[16];
+
+    /* output buffer harus kelipatan 16 byte */
+    if( (aes->outlength==0)   || 
+        (aes->outlength % 16) || 
+        (aes->outlength < aes->inlength)){
+        return -1;
+    }
+
+    piterinput=aes->p_input;
+    piteroutput=aes->p_output;
+    pxorvector=aes->initvector;
+    loop = (aes->inlength/16);
+    while(loop){
+        if(aes->aes_mode==AES_MODE_CBC){
+            aes_decrypt(piterinput,aes->aeskey,padblock);
+            xor_array(padblock,pxorvector,piteroutput,16);
+            pxorvector = piterinput;
+        }else{
+            aes_decrypt(piterinput,aes->aeskey,piteroutput);
+        }
+        piterinput+=16;
+        piteroutput+=16;
+        --loop;
+    }
+
+    return 0;
 }
+
 
 //int main(){
 //

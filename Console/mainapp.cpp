@@ -16,7 +16,8 @@ int main(){
     aes.inlength= strlen(szplaintext);
     aes.p_output = decipher;
     aes.outlength = sizeof(decipher);
-    aes.aes_mode = AES_MODE_ECB;
+    aes.aes_mode = AES_MODE_CBC;
+
     aes128_encipher(&aes);
 
     aes.p_input = decipher;
