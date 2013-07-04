@@ -226,7 +226,7 @@ key_expand(const aesbyte_t* keyinput,aesbyte_t* expandkey){
  */
 static void
 shift_row(aesbyte_t inout[],int is_inverse){
-    /* conversi dari row menjadi matrix 4x4
+    /* konversi dari row menjadi matrix 4x4
        e.g:
        00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
        menjadi
@@ -458,88 +458,3 @@ aes128_decipher(AES128* aes){
 }
 
 
-//int main(){
-//
-//#if 1
-//
-//#if 0
-////static aesbyte_t plaintext[16] = {
-////    'A', 'T', 'T', 'A', 'C', 'K', ' ', 'A', 'T', ' ', 'D', 'A', 'W', 'N', '!', 0x01
-////};
-////static aesbyte_t key[16] = "SOME 128 BIT KEY";
-//#endif
-//
-//#if 1
-//
-//static aesbyte_t plaintext[16] = { 
-//    0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
-//    0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a
-//};
-//
-//static aesbyte_t key[16] = {
-//    0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 
-//    0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
-//
-//};
-//static aesbyte_t ciphered_data[16];
-//static aesbyte_t decr_result[16];
-///* 
-//    CIPHERTEXT = 3a d7 7b b4 0d 7a 36 60 a8 9e ca f3 24 66 ef 97
-//
-//*/
-//#endif
-//
-//    aes_encrypt(plaintext,key,ciphered_data);
-//    aes_decrypt(ciphered_data,key,decr_result);
-//#endif
-//
-//#if 0
-//    //aesbyte_t inputkey[] = {
-//    //    0x00,0x01,0x02,0x03,
-//    //    0x04,0x05,0x06,0x07,
-//    //    0x08,0x09,0x0a,0x0b,
-//    //    0x0c,0x0d,0x0e,0x0f
-//    //};
-//
-//    aesbyte_t inputkey[] = "SOME 128 BIT KEY";
-//    aesbyte_t column[16] = {
-//        0xC9, 0xDA, 0xD7, 0x6A,
-//        0xFB, 0xAA, 0x43, 0xF2,
-//        0x92, 0x6B, 0xD4, 0xB6,
-//        0xF5, 0xAF, 0xC9, 0x59,
-//    };
-//    aesbyte_t mixcolumn[16];
-//    aesbyte_t column_recover[16];
-//
-//
-//    static aesbyte_t expandedkey[11][16];//*10];
-//    key_expand(inputkey,(aesbyte_t*)expandedkey);
-//
-//    /*
-//        expected
-//        00 05 0a 0f
-//        04 09 0e 03
-//        08 0d 02 07
-//        0c 01 06 0b
-//    */
-//    shift_row(inputkey,0);
-//    shift_row(inputkey,1);
-//
-//    /* Expected result:
-//
-//        41 6E 18 99
-//        B9 83 DA 00
-//        E0 95 8B 65
-//        8B A9 38 D0
-//    
-//    */
-//    mix_column(column,mixcolumn,0);
-//    mix_column(mixcolumn,column_recover,1);
-//
-//#endif
-//
-//
-//
-//
-//    return 0;
-//}
