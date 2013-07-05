@@ -1,6 +1,8 @@
 /*
  * AES 128 bit
  * @author Indra Bagus <indra@xirkachipset.com>
+ * 
+ * Implementasi algoritma Advanced Encryption Standard
  */
 
 
