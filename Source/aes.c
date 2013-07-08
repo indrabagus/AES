@@ -478,15 +478,9 @@ aes128_decipher(AES128* aes){
 */
 static void
 aesmac_padding(const aesbyte_t* input,aesbyte_t* padding,int inputlen){
-    int idx=0;
-    for(idx;idx<16;++idx){
-        if(idx < inputlen )
-            padding[idx] = input[idx];
-        else if(idx==inputlen)
-            padding[idx]=0x80;
-        else
-            padding[idx] = 0x00;
-    }
+    memcpy(padding,input,inputlen);
+    padding[inputlen] = 0x80;
+    memset(&padding[inputlen+1],0x00,15-inputlen);
 }
 
 static void 
