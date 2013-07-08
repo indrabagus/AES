@@ -502,23 +502,18 @@ aesmac_leftshift1bit(const aesbyte_t* input, aesbyte_t* output){
 
 
 static void 
-aesmac_gen_subkey(AES128* aes,aesbyte_t* k1,aesbyte_t* k2){
+aesmac_gen_subkey(const aesbyte_t* key,aesbyte_t* k1,aesbyte_t* k2){
     aesbyte_t input[16] = {
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
-    aesbyte_t deciphered[16];
+    aesbyte_t ciphered[16];
     aesbyte_t temp[16];
-    aes->p_input = input;
-    aes->inlength = 16;
-    aes->p_output = deciphered;
-    aes->outlength = 16;
-    aes->aes_mode = AES_MODE_ECB;
-    aes128_encipher(aes);
-    if(( deciphered[0] & 0x80 ) == 0) { /* MSB(L) = 0 then K1 = L << 1 */
-        aesmac_leftshift1bit(deciphered,k1);
+    aes_encrypt(input,key,ciphered);
+    if(( ciphered[0] & 0x80 ) == 0) { /* MSB(L) = 0 then K1 = L << 1 */
+        aesmac_leftshift1bit(ciphered,k1);
     }else{ /* K1 = (L<<1) ^ Rb */
-        aesmac_leftshift1bit(deciphered,temp);
-        xor_array(temp,deciphered,k1,16);
+        aesmac_leftshift1bit(ciphered,temp);
+        xor_array(temp,ciphered,k1,16);
     }
 
     if((k1[0] & 0x80) == 0){
