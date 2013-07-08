@@ -117,6 +117,18 @@ static aesbyte_t l_table[256] = {
     0x67, 0x4A, 0xED, 0xDE, 0xC5, 0x31, 0xFE, 0x18, 0x0D, 0x63, 0x8C, 0x80, 0xC0, 0xF7, 0x70, 0x07 
 };
 
+/* const RB dan const Zero digunakan saat proses penghitungan AES CMAC */
+static aesbyte_t const_rb[16] = { 
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87 
+};
+
+
+static aesbyte_t const_zero[16] = { 
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
+};
+
 static void 
 xor_array(const aesbyte_t* arr_a,const aesbyte_t* arr_b,aesbyte_t* output,int len){
     int idx;
@@ -457,4 +469,51 @@ aes128_decipher(AES128* aes){
     return 0;
 }
 
+static void 
+aesmac_leftshift1bit(const aesbyte_t* input, aesbyte_t* output){
+    int idx;
+    aesbyte_t overflow = 0;
+    for(idx=15;idx>=0;--idx){
+        output[idx] = input[idx] << 1;
+        output[idx] |= overflow;
+        overflow = (input[idx] & 0x80) ? 1:0;
+    }
+}
+
+
+static void 
+aesmac_gen_subkey(AES128* aes,aesbyte_t* k1,aesbyte_t* k2){
+    aesbyte_t input[16] = {
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
+    aesbyte_t deciphered[16];
+    aesbyte_t temp[16];
+    aes->p_input = input;
+    aes->inlength = 16;
+    aes->p_output = deciphered;
+    aes->outlength = 16;
+    aes->aes_mode = AES_MODE_ECB;
+    aes128_encipher(aes);
+    if(( deciphered[0] & 0x80 ) == 0) { /* MSB(L) = 0 then K1 = L << 1 */
+        aesmac_leftshift1bit(deciphered,k1);
+    }else{ /* K1 = (L<<1) ^ Rb */
+        aesmac_leftshift1bit(deciphered,temp);
+        xor_array(temp,deciphered,k1,16);
+    }
+
+    if((k1[0] & 0x80) == 0){
+        aesmac_leftshift1bit(k1,k2);
+    }else{
+        aesmac_leftshift1bit(k1,temp);
+        xor_array(temp,k1,k2,16);
+    }
+
+
+}
+
+
+int 
+aescmac_generate(AES128* aes){
+    return 0;
+}
 

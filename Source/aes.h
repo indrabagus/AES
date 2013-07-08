@@ -33,6 +33,7 @@ extern "C" {
 
 int aes128_encipher(AES128* aes);
 int aes128_decipher(AES128* aes);
+int aescmac_generate(AES128* aes);
 
 #ifdef __cplusplus
 }
