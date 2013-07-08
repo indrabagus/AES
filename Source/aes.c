@@ -469,6 +469,26 @@ aes128_decipher(AES128* aes){
     return 0;
 }
 
+
+/*
+    10000...n padded output of input x
+    example:
+    input : C0 FF EE
+    output: C0 FF EE 80 00 00 00 00 .... 00
+*/
+static void
+aesmac_padding(const aesbyte_t* input,aesbyte_t* padding,int inputlen){
+    int idx=0;
+    for(idx;idx<16;++idx){
+        if(idx < inputlen )
+            padding[idx] = input[idx];
+        else if(idx==inputlen)
+            padding[idx]=0x80;
+        else
+            padding[idx] = 0x00;
+    }
+}
+
 static void 
 aesmac_leftshift1bit(const aesbyte_t* input, aesbyte_t* output){
     int idx;
