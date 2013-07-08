@@ -522,7 +522,33 @@ aesmac_gen_subkey(const aesbyte_t* key,aesbyte_t* k1,aesbyte_t* k2){
 
 
 int 
-aescmac_generate(AES128* aes){
+aescmac_generate(AES128* paes){
+    aesbyte_t subkey_k1[16],subkey_k2[16],m_last[16];
+    aesbyte_t X[16],Y[16],padded[16];
+    int numround;
+    int flagfragment = 0;
+    /* generate 2 subkey */
+    aesmac_gen_subkey(paes->aeskey,subkey_k1,subkey_k2);
+    /* Tentukan jumlah putaran proses per blok data ( 16 byte ) */
+    numround = (paes->inlength + 15 ) / 16;
+    if(numround == 0)
+        numround = 1;
+
+    /* tentukan apakah butuh padding (16 byte) atau tidak */
+    flagfragment = ((paes->inlength % 16) != 0 ) ? 1 : 0;
+
+    /* jika panjang data input genap kelipatan 16 byte maka blok terakhir
+       pada data input di-XOR dengan subkey k1, hasil dari xor ini akan digunakan
+       pada akhir putaran AES CMAC
+     */
+    if(flagfragment == 0){
+        xor_array(paes->p_input[16*(numround-1)],subkey_k1,m_last,16);
+    }else{
+        aesmac_padding(paes->p_input[16*(numround-1)],padded,paes->inlength%16);
+        xor_array(padded,subkey_k2,m_last,16);
+    }
+
+
     return 0;
 }
 
