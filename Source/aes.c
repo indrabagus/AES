@@ -542,9 +542,9 @@ aescmac_generate(AES128* paes){
        pada akhir putaran AES CMAC
      */
     if(flagfragment == 0){
-        xor_array(paes->p_input[16*(numround-1)],subkey_k1,m_last,16);
+        xor_array(&paes->p_input[16*(numround-1)],subkey_k1,m_last,16);
     }else{
-        aesmac_padding(paes->p_input[16*(numround-1)],padded,paes->inlength%16);
+        aesmac_padding(&paes->p_input[16*(numround-1)],padded,paes->inlength%16);
         xor_array(padded,subkey_k2,m_last,16);
     }
 
