@@ -523,10 +523,16 @@ aesmac_gen_subkey(const aesbyte_t* key,aesbyte_t* k1,aesbyte_t* k2){
 
 int 
 aescmac_generate(AES128* paes){
+
     aesbyte_t subkey_k1[16],subkey_k2[16],m_last[16];
     aesbyte_t X[16],Y[16],padded[16];
-    int numround;
+    int numround,idx;
     int flagfragment = 0;
+    
+    if(paes->outlength != 16 ){
+        return -1;
+    }
+
     /* generate 2 subkey */
     aesmac_gen_subkey(paes->aeskey,subkey_k1,subkey_k2);
     /* Tentukan jumlah putaran proses per blok data ( 16 byte ) */
@@ -548,7 +554,20 @@ aescmac_generate(AES128* paes){
         xor_array(padded,subkey_k2,m_last,16);
     }
 
+    /* inisialisasi nilai array X */
+    memset(X,0x00,16);
+    /* lakukan loop sebanyak putaran 'numround' */
+    for(idx=0;idx<numround-1;++idx){
+        xor_array(X,&paes->p_input[16*idx],Y,16); /* Y = Mi ^ X */
+        aes_encrypt(Y,paes->aeskey,X); /* X = AES128(Y,key) */
+    }
 
+    /* final process dengan blok terakhir */
+    xor_array(X,m_last,Y,16);
+    aes_encrypt(Y,paes->aeskey,X);
+
+    /* now put it all to the output */
+    memcpy(paes->p_output,X,16);
     return 0;
 }
 
