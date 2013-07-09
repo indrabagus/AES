@@ -4,7 +4,16 @@
 #include <cstring>
 #include <cstdio>
 
-/* */
+#define AESTEST_ASSERTION(stmt)                                     \
+    do{                                                             \
+        if(!stmt) {                                                 \
+            printf("ASSERTION FAILED on line:%d\n",__LINE__);       \
+            exit(-1);                                               \
+        }                                                           \
+    }while(0)
+
+
+/* Example Usage */
 static const char* szplaintext = "Serangan dimulai saat fajar!";
 static const char* szkey       = "Janur Kuning";
 static unsigned char plaintext[32];
@@ -64,6 +73,80 @@ static unsigned char cbc128_ciphertext[4][16] = {
 
 };
 
+/* Test vector untuk AES-CMAC */
+/*  
+   --------------------------------------------------
+   M              <empty string>
+   AES-CMAC       bb1d6929 e9593728 7fa37d12 9b756746
+   --------------------------------------------------
+*/
+static unsigned char aescmacex1_result[16] = {
+    0xbb, 0x1d, 0x69, 0x29, 0xe9, 0x59, 0x37, 0x28, 
+    0x7f, 0xa3, 0x7d, 0x12, 0x9b, 0x75, 0x67, 0x46
+};
+
+
+/*
+   Example 2: len = 16
+   M              6bc1bee2 2e409f96 e93d7e11 7393172a
+   AES-CMAC       070a16b4 6b4d4144 f79bdd9d d04a287c
+   --------------------------------------------------
+*/
+static unsigned char aescmacex2_m[] = {
+    0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 
+    0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a
+};
+
+static unsigned char aescmacex2_result[16] = {
+    0x07, 0x0a, 0x16, 0xb4, 0x6b, 0x4d, 0x41, 0x44, 
+    0xf7, 0x9b, 0xdd, 0x9d, 0xd0, 0x4a, 0x28, 0x7c
+};
+
+/*
+   Example 3: len = 40
+   M              6bc1bee2 2e409f96 
+                  e93d7e11 7393172a
+                  ae2d8a57 1e03ac9c 
+                  9eb76fac 45af8e51
+                  30c81c46 a35ce411
+   
+   AES-CMAC       dfa66747 de9ae630 
+                  30ca3261 1497c827
+   --------------------------------------------------
+*/
+static unsigned char aescmacex3_m[] = {
+    0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 
+    0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a, 
+    0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 
+    0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51, 
+    0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11
+};
+
+static unsigned char aescmacex3_result[16] = {
+    0xdf, 0xa6, 0x67, 0x47, 0xde, 0x9a, 0xe6, 0x30, 
+    0x30, 0xca, 0x32, 0x61, 0x14, 0x97, 0xc8, 0x27
+};
+
+/*
+   Example 4: len = 64
+   M              6bc1bee2 2e409f96 e93d7e11 7393172a
+                  ae2d8a57 1e03ac9c 9eb76fac 45af8e51
+                  30c81c46 a35ce411 e5fbc119 1a0a52ef
+                  f69f2445 df4f9b17 ad2b417b e66c3710
+   AES-CMAC       51f0bebf 7e3b9d92 fc497417 79363cfe
+   --------------------------------------------------
+*/
+static unsigned char aescmacex4_m[] = {
+    0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
+    0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c, 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
+    0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
+    0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10
+};
+
+static unsigned char aescmacex4_result[16] = {
+    0x51, 0xf0, 0xbe, 0xbf, 0x7e, 0x3b, 0x9d, 0x92, 
+    0xfc, 0x49, 0x74, 0x17, 0x79, 0x36, 0x3c, 0xfe
+};
 
 /* AES structure for all aes operation */
 static AES128 aes;
@@ -148,11 +231,13 @@ static verify_t test_cbc_vectors()
 
 }
 
+
+
 static void example_usage(void)
 {
     memcpy(aes.aeskey,szkey,16);
     memset(aes.initvector,0xDF,16);
-    strcpy((char*)plaintext,szplaintext);
+    strcpy_s((char*)plaintext,strlen(szplaintext),szplaintext);
     aes.p_input = plaintext;
     aes.inlength= strlen(szplaintext);
     aes.p_output = decipher;
@@ -174,8 +259,31 @@ int main(){
     example_usage();
 #endif
     verify_t result =  test_ecb_vectors();
-    printf("TEST AES128 ECB RESULT : %s\n",(result==pass)?"PASS" : "FAIL");
+    AESTEST_ASSERTION(result == pass);
     result = test_cbc_vectors();
-    printf("TEST AES128 CBC RESULT : %s\n",(result==pass)?"PASS" : "FAIL");
+    AESTEST_ASSERTION(result == pass);
+    printf("TEST AES128 CBC AND ECB PASS\n");
+    
+    /* testing AES CMAC */
+    static unsigned char aescmac[16];
+    memcpy(aes.aeskey,ecb128_key,16);
+    aes.p_output = aescmac;
+    aes.outlength = 16;
+
+    aes.p_input = aescmacex3_m;
+    aes.inlength = sizeof(aescmacex3_m);
+    aescmac_generate(&aes);
+    AESTEST_ASSERTION(verify_vector(aes.p_output,aescmacex3_result,16) == pass);
+
+    aes.p_input = aescmacex2_m;
+    aes.inlength = sizeof(aescmacex2_m);
+    aescmac_generate(&aes);
+    AESTEST_ASSERTION(verify_vector(aes.p_output,aescmacex2_result,16) == pass);
+
+    aes.p_input = aescmacex4_m;
+    aes.inlength = sizeof(aescmacex4_m);
+    aescmac_generate(&aes);
+    AESTEST_ASSERTION(verify_vector(aes.p_output,aescmacex4_result,16) == pass);
+    printf("TESTING AES CMAC : PASS\n");
     return 0;
 }
