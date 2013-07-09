@@ -1,8 +1,10 @@
 /*
- * AES 128 bit
+ * AES
  * @author Indra Bagus <indra@xirkachipset.com>
  * 
- * Implementasi algoritma Advanced Encryption Standard
+ * Implementasi algoritma Advanced Encryption Standard 128 bit
+ * dan algoritma untuk men-generate AES-CMAC 
+ * ( AES Ciphered Based Message Authentication Code )
  */
 
 
@@ -33,7 +35,7 @@ extern "C" {
 
 int aes128_encipher(AES128* aes);
 int aes128_decipher(AES128* aes);
-int aescmac_generate(AES128* aes);
+int aescmac_generate(AES128* paes);
 
 #ifdef __cplusplus
 }

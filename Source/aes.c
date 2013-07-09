@@ -520,7 +520,12 @@ aesmac_gen_subkey(const aesbyte_t* key,aesbyte_t* k1,aesbyte_t* k2){
 
 }
 
-
+/*
+ * Baca dokumen
+ * RFC 4493 - The AES-CMAC Algorithm
+ * Untuk pemahaman yang komprehensif tentang algoritma
+ * AES CMAC generator
+ */
 int 
 aescmac_generate(AES128* paes){
 
@@ -537,12 +542,12 @@ aescmac_generate(AES128* paes){
     aesmac_gen_subkey(paes->aeskey,subkey_k1,subkey_k2);
     /* Tentukan jumlah putaran proses per blok data ( 16 byte ) */
     numround = (paes->inlength + 15 ) / 16;
-    if(numround == 0)
+    if(numround == 0){
         numround = 1;
-
-    /* tentukan apakah butuh padding (16 byte) atau tidak */
-    flagfragment = ((paes->inlength % 16) != 0 ) ? 1 : 0;
-
+        flagfragment = 1;
+    }else{ /* tentukan apakah butuh padding (16 byte) atau tidak */
+        flagfragment = ((paes->inlength % 16) != 0 ) ? 1 : 0;
+    }
     /* jika panjang data input genap kelipatan 16 byte (tidak terfragment)
        maka blok terakhir pada data input di-XOR dengan subkey k1, 
        hasil dari xor ini akan digunakan pada akhir putaran AES CMAC
