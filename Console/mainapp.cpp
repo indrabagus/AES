@@ -74,12 +74,15 @@ static unsigned char cbc128_ciphertext[4][16] = {
 };
 
 /* Test vector untuk AES-CMAC */
+
 /*  
    --------------------------------------------------
    M              <empty string>
    AES-CMAC       bb1d6929 e9593728 7fa37d12 9b756746
    --------------------------------------------------
 */
+static unsigned char aescmacex1_m[]={NULL};
+
 static unsigned char aescmacex1_result[16] = {
     0xbb, 0x1d, 0x69, 0x29, 0xe9, 0x59, 0x37, 0x28, 
     0x7f, 0xa3, 0x7d, 0x12, 0x9b, 0x75, 0x67, 0x46
@@ -270,10 +273,10 @@ int main(){
     aes.p_output = aescmac;
     aes.outlength = 16;
 
-    //aes.p_input = 0x00;
-    //aes.inlength = 0;
-    //aescmac_generate(&aes);
-    //AESTEST_ASSERTION(verify_vector(aes.p_output,aescmacex1_result,16) == pass);
+    aes.p_input = aescmacex1_m;
+    aes.inlength = 0;
+    aescmac_generate(&aes);
+    AESTEST_ASSERTION(verify_vector(aes.p_output,aescmacex1_result,16) == pass);
 
     aes.p_input = aescmacex2_m;
     aes.inlength = sizeof(aescmacex2_m);
