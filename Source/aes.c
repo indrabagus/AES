@@ -507,7 +507,7 @@ aesmac_gen_subkey(const aesbyte_t* key,aesbyte_t* k1,aesbyte_t* k2){
         aesmac_leftshift1bit(ciphered,k1);
     }else{ /* K1 = (L<<1) ^ Rb */
         aesmac_leftshift1bit(ciphered,temp);
-        xor_array(temp,ciphered,k1,16);
+        xor_array(temp,const_rb,k1,16);
     }
 
     if((k1[0] & 0x80) == 0){
