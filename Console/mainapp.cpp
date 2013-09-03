@@ -272,6 +272,7 @@ int main(){
     memcpy(aes.aeskey,ecb128_key,16);
     aes.p_output = aescmac;
     aes.outlength = 16;
+    memset(aes.initvector,0,16);
 
     aes.p_input = aescmacex1_m;
     aes.inlength = 0;

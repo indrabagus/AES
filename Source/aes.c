@@ -559,8 +559,8 @@ aescmac_generate(AES128* paes){
         xor_array(padded,subkey_k2,m_last,16);
     }
 
-    /* inisialisasi nilai array X */
-    memset(X,0x00,16);
+    /* Inisialisasi X dengan nilai IV */
+    memcpy(X,paes->initvector,16);
     /* lakukan loop sebanyak putaran 'numround' */
     for(idx=0;idx<numround-1;++idx){
         xor_array(X,&paes->p_input[16*idx],Y,16); /* Y = Mi ^ X */
