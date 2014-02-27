@@ -77,10 +77,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\aes.c" />
+    <ClCompile Include="..\Source\xkaes.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="mainapp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\aes.h" />
+    <ClInclude Include="..\Source\xkaes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,9 +21,15 @@
     <ClCompile Include="mainapp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\xkaes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\aes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\xkaes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
