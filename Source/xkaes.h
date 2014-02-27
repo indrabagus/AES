@@ -4,23 +4,25 @@
 #pragma once
 
 #include <vector>
-
+#include <stdexcept>
 
 class xkaes
 {
     enum aeslen{
-        bitlen128,
-        bitlen192,
-        bitlen256
+        bitlen128=128,
+        bitlen192=192,
+        bitlen256=256
     };
 
     enum aesmode{ ecb, cbc };
 
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
-    void set_iv(const void* piv,size_t len);
+    void set_iv(const void* piv,size_t len)throw(...);
     void set_iv(const std::vector<unsigned char>& vect);
-    void set_key(const void* pkey, size_t len);
+
+    void set_key(const void* pkey, size_t len)throw(...);
+
     void set_key(const std::vector<unsigned char>& vect);
 
     /* dangerous function, since i assume the length of output buffer shouldbe the same size of datalen */
@@ -32,6 +34,7 @@ public:
 
 private:
     typedef std::vector<unsigned char> payload_t;
+    typedef unsigned char ubyte_t;
     payload_t m_iv;
     payload_t m_key;
     aeslen m_bitlen;
