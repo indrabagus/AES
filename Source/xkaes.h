@@ -16,6 +16,9 @@ class xkaes
 
     enum aesmode{ ecb, cbc };
 
+    typedef std::vector<unsigned char> payload_t;
+    typedef unsigned char ubyte_t;
+
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
     void set_iv(const void* piv,size_t len)throw(...);
@@ -33,14 +36,23 @@ public:
     int decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len);
 
 private:
-    typedef std::vector<unsigned char> payload_t;
-    typedef unsigned char ubyte_t;
+    void key_rotate(ubyte_t inout[]);
+
+private:
     payload_t m_iv;
     payload_t m_key;
     aeslen m_bitlen;
     aesmode m_mode;
-
-    
+    std::vector<payload_t> m_expandedkey;
+    static ubyte_t s_subs_box[256];
+    static ubyte_t s_rsubs_box[256];
+    static ubyte_t const_zero[16];
+    static ubyte_t const_rb[16];
+    static ubyte_t l_table[256];
+    static ubyte_t e_table[256];
+    static ubyte_t mul_matrix_decr[4][4];
+    static ubyte_t mul_matrix_encr[4][4];
+    static ubyte_t r_const[15][4];
 
 
 
