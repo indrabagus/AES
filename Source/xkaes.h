@@ -18,6 +18,12 @@ class xkaes
 
     typedef std::vector<unsigned char> payload_t;
     typedef unsigned char ubyte_t;
+    typedef ubyte_t aesword[4];
+    typedef __int32 intword;
+    typedef union {
+        ubyte_t data[4];
+        __int32 idata;
+    }AESWORD;
 
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
@@ -36,7 +42,9 @@ public:
     int decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len);
 
 private:
-    void key_rotate(ubyte_t inout[]);
+    void rotate_word(aesword inout);
+    void subs_word(aesword inout);
+    void key_expand(void);
 
 private:
     payload_t m_iv;
@@ -44,6 +52,12 @@ private:
     aeslen m_bitlen;
     aesmode m_mode;
     std::vector<payload_t> m_expandedkey;
+    std::vector<AESWORD> m_expkey;
+    int m_rotation_num;
+    int m_nr; // Number of rounds
+    int m_nk; // Key length in words
+    int m_nb; // Block size;
+
     static ubyte_t s_subs_box[256];
     static ubyte_t s_rsubs_box[256];
     static ubyte_t const_zero[16];
@@ -52,7 +66,7 @@ private:
     static ubyte_t e_table[256];
     static ubyte_t mul_matrix_decr[4][4];
     static ubyte_t mul_matrix_encr[4][4];
-    static ubyte_t r_const[15][4];
+    static __int32 r_const[15];
 
 
 

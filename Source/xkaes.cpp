@@ -44,24 +44,25 @@ xkaes::ubyte_t xkaes::s_rsubs_box[256] = {
 
 
 
-xkaes::ubyte_t xkaes::r_const[15][4] = {
-    {0x01, 0x00, 0x00, 0x00},
-    {0x02, 0x00, 0x00, 0x00}, 
-    {0x04, 0x00, 0x00, 0x00},
-    {0x08, 0x00, 0x00, 0x00},
-    {0x10, 0x00, 0x00, 0x00},
-    {0x20, 0x00, 0x00, 0x00},
-    {0x40, 0x00, 0x00, 0x00},
-    {0x80, 0x00, 0x00, 0x00},
-    {0x1B, 0x00, 0x00, 0x00},
-    {0x36, 0x00, 0x00, 0x00},
-    {0x6C, 0x00, 0x00, 0x00},
-    {0xD8, 0x00, 0x00, 0x00},
-    {0xAB, 0x00, 0x00, 0x00},
-    {0x4D, 0x00, 0x00, 0x00},
-    {0x9A, 0x00, 0x00, 0x00}
-};
 
+
+__int32 xkaes::r_const[15] = {
+    0x01000000,
+    0x02000000, 
+    0x04000000,
+    0x08000000,
+    0x10000000,
+    0x20000000,
+    0x40000000,
+    0x80000000,
+    0x1B000000,
+    0x36000000,
+    0x6C000000,
+    0xD8000000,
+    0xAB000000,
+    0x4D000000,
+    0x9A000000
+};
 
 xkaes::ubyte_t xkaes::mul_matrix_encr[4][4] = {
     {0x02, 0x03, 0x01, 0x01},
@@ -136,7 +137,27 @@ xkaes::xkaes(aeslen bitlen,aesmode mod)
     ,m_mode(mod)
     ,m_iv(16)
     ,m_key(bitlen/8)
+    ,m_nb(4)
 {
+    switch(bitlen)
+    {
+    case bitlen128:
+        m_nr= 10;
+        m_nk = 4;
+    break;
+
+    case bitlen192:
+        m_nr = 12;
+        m_nk = 6;
+        break;
+    case bitlen256:
+        m_nr = 14;
+        m_nk = 8;
+        break;
+    }
+    
+    m_expkey.resize(m_nb*(m_nr+1));
+
 }
 
 void xkaes::set_iv(const void* piv,size_t len)
@@ -148,10 +169,56 @@ void xkaes::set_iv(const void* piv,size_t len)
 
 }
 
+#define ROTATE_WORD(aesword) ((aesword << 8)|((aesword >> 24) & 0xFF))
 
-void xkaes::key_rotate(ubyte_t inout[])
-{}
+void xkaes::rotate_word(aesword inout)
+{
+    ubyte_t tmp = inout[0];
+    inout[0]=inout[1];
+    inout[1]=inout[2];
+    inout[2]=inout[3];
+    inout[3]=tmp;
+}
 
+void xkaes::subs_word(aesword inout)
+{
+        inout[0] = xkaes::s_subs_box[inout[0]];
+        inout[1] = xkaes::s_subs_box[inout[1]];
+        inout[2] = xkaes::s_subs_box[inout[2]];
+        inout[3] = xkaes::s_subs_box[inout[3]];
+}
+
+
+void xkaes::key_expand(void)
+{
+    AESWORD temp;
+    int i = 0;
+    int totalexpkey=m_nb*(m_nr+1);
+    while(i<m_nk){
+        m_expkey[i].data[0] = m_key[4*i];
+        m_expkey[i].data[1] = m_key[4*i+1];
+        m_expkey[i].data[2] = m_key[4*i+2];
+        m_expkey[i].data[3] = m_key[4*i+3];
+        ++i;
+    }
+    i = m_nk;
+    while(i<totalexpkey)
+    {
+        temp.idata = m_expkey[i-1].idata;
+        if((i % m_nk) == 0){
+            // do rotation
+            temp.idata = ROTATE_WORD(temp.idata);
+            subs_word(temp.data);
+            temp.idata = temp.idata ^ r_const[i/m_nk];
+        }
+        else if((m_nk > 6) && ((i % m_nk) == 4))
+        {
+            subs_word(temp.data);
+        }
+        m_expkey[i].idata = m_expkey[i-m_nk].idata ^ temp.idata;
+        ++i;
+    }
+}
 
 
 void xkaes::set_iv(const std::vector<unsigned char>& vect)
@@ -160,6 +227,7 @@ void xkaes::set_iv(const std::vector<unsigned char>& vect)
         throw std::length_error("Length IV should be 16 byte");
     std::copy(vect.begin(),vect.end(),m_iv.begin());
 }
+
 
 void xkaes::set_key(const void* pkey, size_t len)
 {
@@ -177,15 +245,18 @@ void xkaes::set_key(const std::vector<unsigned char>& vect)
     std::copy(vect.begin(),vect.end(),m_key.begin());
 }
 
+
 int xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 {
     return 0;
 }
 
+
 int xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
 {
     return 0;
 }
+
 
 int xkaes::decrypt(void* poutput,const void* indata,size_t datalen)
 {
