@@ -1,5 +1,9 @@
 #include "xkaes.h"
 #include <algorithm>
+#include <cassert>
+
+#define ROTATE_WORD(aesword) ((aesword << 8)|((aesword >> 24) & 0xFF))
+#define MAKE_WORD(a,b,c,d) ((a << 24) | (b << 16)| (c << 8)| d )
 
 
 xkaes::ubyte_t xkaes::s_subs_box[256] = {
@@ -169,7 +173,7 @@ void xkaes::set_iv(const void* piv,size_t len)
 
 }
 
-#define ROTATE_WORD(aesword) ((aesword << 8)|((aesword >> 24) & 0xFF))
+
 
 void xkaes::rotate_word(aesword inout)
 {
@@ -269,3 +273,41 @@ int xkaes::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len
     return 0;
 }
 
+void xkaes::encrypt_block(payload_t::iterator out,payload_t::iterator in)
+{
+    wordarray_t state(4);
+    payload_t::iterator iter = in;
+    wordarray_t::iterator iterword = state.begin();
+    while(iterword != state.end())
+    {
+        std::copy(iter,iter+4,iterword->data);
+        ++iterword;
+        iter += 4;
+    }
+
+    iterword = state.begin();
+    while(iterword != state.end())
+    {
+        std::copy(iterword->data,iterword->data+4,out);
+        ++iterword;
+        out+=4;
+    }
+
+    
+
+}
+
+
+void xkaes::add_roundkey(wordarray_t& inout,iterword_t begin, iterword_t end)
+{
+    assert(inout.size() != 4);
+    iterword_t iter = begin;
+    iterword_t iterdata = inout.begin();
+    while(iter!=end)
+    {
+        iterdata->idata = iterdata->idata ^ iter->idata;
+        ++iterdata;
+        ++iter;
+    }
+
+}

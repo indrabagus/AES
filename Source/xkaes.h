@@ -24,6 +24,9 @@ class xkaes
         ubyte_t data[4];
         __int32 idata;
     }AESWORD;
+    typedef std::vector<AESWORD> wordarray_t;
+    typedef wordarray_t::iterator iterword_t;
+
 
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
@@ -34,7 +37,7 @@ public:
 
     void set_key(const std::vector<unsigned char>& vect);
 
-    /* dangerous function, since i assume the length of output buffer shouldbe the same size of datalen */
+    /* dangerous function, since i assume the length of output buffer should be the same size of datalen */
     int encrypt(void* poutput,const void* indata, size_t datalen);
     int encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len);
 
@@ -45,6 +48,8 @@ private:
     void rotate_word(aesword inout);
     void subs_word(aesword inout);
     void key_expand(void);
+    void add_roundkey(wordarray_t& inout,iterword_t begin, iterword_t end);
+    void encrypt_block(payload_t::iterator out,payload_t::iterator in);
 
 private:
     payload_t m_iv;
