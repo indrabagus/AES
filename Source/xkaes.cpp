@@ -1,11 +1,12 @@
-#include "xkaes.h"
 #include <algorithm>
 #include <cassert>
+#include "xkaes.h"
 
 #define ROTATE_WORD(aesword) ((aesword << 8)|((aesword >> 24) & 0xFF))
 #define MAKE_WORD(a,b,c,d) ((a << 24) | (b << 16)| (c << 8)| d )
 
 
+    
 xkaes::ubyte_t xkaes::s_subs_box[256] = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
@@ -134,7 +135,32 @@ xkaes::ubyte_t xkaes::const_zero[16] = {
 };
 
 
+void xkaes::Word::subtitute()
+{
+    this->m_data[0] = xkaes::s_subs_box[this->m_data[0]];
+    this->m_data[1] = xkaes::s_subs_box[this->m_data[1]];
+    this->m_data[2] = xkaes::s_subs_box[this->m_data[2]];
+    this->m_data[3] = xkaes::s_subs_box[this->m_data[3]];
+    this->m_idata = (m_data[0] | m_data[1] | m_data[2] | m_data[3]);
+}
 
+
+xkaes::Word& xkaes::Word::operator = (Word& rhs)
+{
+    this->m_idata = rhs.m_idata;
+    std::copy(rhs.m_data,rhs.m_data+4,this->m_data);
+    return *this;
+}
+
+void xkaes::Word::rotate()
+{
+    ubyte_t tmp = this->m_data[0];
+    this->m_data[0]=this->m_data[1];
+    this->m_data[1]=this->m_data[2];
+    this->m_data[2]=this->m_data[3];
+    this->m_data[3]=tmp;
+    this->m_idata = (m_data[0] | m_data[1] | m_data[2] | m_data[3]);
+}
 
 xkaes::xkaes(aeslen bitlen,aesmode mod)
     :m_bitlen(bitlen)
@@ -160,66 +186,35 @@ xkaes::xkaes(aeslen bitlen,aesmode mod)
         break;
     }
     
-    m_expkey.resize(m_nb*(m_nr+1));
+    m_expandkey.resize(m_nb*(m_nr+1));
 
-}
-
-void xkaes::set_iv(const void* piv,size_t len)
-{
-    if(len != 16)
-        throw std::length_error("Length IV should be 16 bytes");
-    ubyte_t* pbyte = (ubyte_t*)piv;
-    std::copy(pbyte,pbyte+16,m_iv.begin());
-
-}
-
-
-
-void xkaes::rotate_word(aesword inout)
-{
-    ubyte_t tmp = inout[0];
-    inout[0]=inout[1];
-    inout[1]=inout[2];
-    inout[2]=inout[3];
-    inout[3]=tmp;
-}
-
-void xkaes::subs_word(aesword inout)
-{
-        inout[0] = xkaes::s_subs_box[inout[0]];
-        inout[1] = xkaes::s_subs_box[inout[1]];
-        inout[2] = xkaes::s_subs_box[inout[2]];
-        inout[3] = xkaes::s_subs_box[inout[3]];
 }
 
 
 void xkaes::key_expand(void)
 {
-    AESWORD temp;
+    xkaes::Word tmp;
     int i = 0;
     int totalexpkey=m_nb*(m_nr+1);
     while(i<m_nk){
-        m_expkey[i].data[0] = m_key[4*i];
-        m_expkey[i].data[1] = m_key[4*i+1];
-        m_expkey[i].data[2] = m_key[4*i+2];
-        m_expkey[i].data[3] = m_key[4*i+3];
+        m_expandkey[i] = Word(&m_key[4*i],4);
         ++i;
     }
     i = m_nk;
     while(i<totalexpkey)
     {
-        temp.idata = m_expkey[i-1].idata;
+        tmp = m_expandkey[i-1];
         if((i % m_nk) == 0){
             // do rotation
-            temp.idata = ROTATE_WORD(temp.idata);
-            subs_word(temp.data);
-            temp.idata = temp.idata ^ r_const[i/m_nk];
+            tmp.rotate();
+            tmp.subtitute();
+            tmp ^= r_const[i/m_nk];
         }
         else if((m_nk > 6) && ((i % m_nk) == 4))
         {
-            subs_word(temp.data);
+            tmp.subtitute();
         }
-        m_expkey[i].idata = m_expkey[i-m_nk].idata ^ temp.idata;
+        m_expandkey[i]  = m_expandkey[i-m_nk] ^ tmp;
         ++i;
     }
 }
@@ -239,19 +234,24 @@ void xkaes::set_key(const void* pkey, size_t len)
         throw std::length_error("Key len doesn't match with current AES bit len");
     ubyte_t* pbyte = (ubyte_t*)pkey;
     std::copy(pbyte,pbyte+len,m_key.begin());
+    key_expand();
 }
 
 
 void xkaes::set_key(const std::vector<unsigned char>& vect)
 {
-    if(vect.size() != m_key.size())
-        throw std::length_error("Key len doesn't match with current AES bit len");
-    std::copy(vect.begin(),vect.end(),m_key.begin());
+    set_key(vect.data(),vect.size());
 }
 
 
 int xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 {
+    ubyte_t* pdata = (ubyte_t*)indata;
+    
+    if(m_mode == cbc)
+    {
+
+    }
     return 0;
 }
 

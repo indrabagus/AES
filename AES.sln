@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Console\Console.vcxproj", "{561854E7-F562-47D1-808E-93FABF606827}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AES UI Tools", "Gui\AES UI Tools.vcxproj", "{E43BD764-DD55-4CD5-A844-2BFD797CF0CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{6FE85E52-E145-456B-81A5-6EF75D0D2B15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,10 @@ Global
 		{E43BD764-DD55-4CD5-A844-2BFD797CF0CE}.Debug|Win32.Build.0 = Debug|Win32
 		{E43BD764-DD55-4CD5-A844-2BFD797CF0CE}.Release|Win32.ActiveCfg = Release|Win32
 		{E43BD764-DD55-4CD5-A844-2BFD797CF0CE}.Release|Win32.Build.0 = Release|Win32
+		{6FE85E52-E145-456B-81A5-6EF75D0D2B15}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6FE85E52-E145-456B-81A5-6EF75D0D2B15}.Debug|Win32.Build.0 = Debug|Win32
+		{6FE85E52-E145-456B-81A5-6EF75D0D2B15}.Release|Win32.ActiveCfg = Release|Win32
+		{6FE85E52-E145-456B-81A5-6EF75D0D2B15}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,6 +8,8 @@
 
 class xkaes
 {
+
+public:
     enum aeslen{
         bitlen128=128,
         bitlen192=192,
@@ -16,6 +18,8 @@ class xkaes
 
     enum aesmode{ ecb, cbc };
 
+
+private:
     typedef std::vector<unsigned char> payload_t;
     typedef unsigned char ubyte_t;
     typedef ubyte_t aesword[4];
@@ -27,6 +31,40 @@ class xkaes
     typedef std::vector<AESWORD> wordarray_t;
     typedef wordarray_t::iterator iterword_t;
 
+private:
+    class Word
+    {
+    public:
+        explicit Word(const ubyte_t* pinput,size_t len)
+        {
+            std::copy(pinput,pinput+4,m_data);
+            m_idata = (m_data[0] << 24) | (m_data[1] << 16) | (m_data[2] << 8) | m_data[3];
+        }
+
+        explicit Word(void) { /* do nothing */ }
+        
+        void subtitute();
+        void rotate();
+
+        Word& operator ^= (__int32 rhs)
+        {
+            m_idata = m_idata^rhs;
+            return *this;
+        }
+
+        Word& operator ^ (Word& rhs)
+        {
+            m_idata = m_idata ^ rhs.m_idata;
+            return *this;
+        }
+        
+
+        Word& operator = (Word& rhs);
+
+    private:
+        ubyte_t m_data[4];
+        unsigned __int32 m_idata;
+    };
 
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
@@ -56,8 +94,7 @@ private:
     payload_t m_key;
     aeslen m_bitlen;
     aesmode m_mode;
-    std::vector<payload_t> m_expandedkey;
-    std::vector<AESWORD> m_expkey;
+    std::vector<Word> m_expandkey;
     int m_rotation_num;
     int m_nr; // Number of rounds
     int m_nk; // Key length in words
