@@ -137,29 +137,22 @@ xkaes::ubyte_t xkaes::const_zero[16] = {
 
 void xkaes::Word::subtitute()
 {
-    this->m_data[0] = xkaes::s_subs_box[this->m_data[0]];
-    this->m_data[1] = xkaes::s_subs_box[this->m_data[1]];
-    this->m_data[2] = xkaes::s_subs_box[this->m_data[2]];
-    this->m_data[3] = xkaes::s_subs_box[this->m_data[3]];
-    this->m_idata = (m_data[0] | m_data[1] | m_data[2] | m_data[3]);
+    this->u.m_data[0] = xkaes::s_subs_box[this->u.m_data[0]];
+    this->u.m_data[1] = xkaes::s_subs_box[this->u.m_data[1]];
+    this->u.m_data[2] = xkaes::s_subs_box[this->u.m_data[2]];
+    this->u.m_data[3] = xkaes::s_subs_box[this->u.m_data[3]];
 }
 
 
-xkaes::Word& xkaes::Word::operator = (Word& rhs)
-{
-    this->m_idata = rhs.m_idata;
-    std::copy(rhs.m_data,rhs.m_data+4,this->m_data);
-    return *this;
-}
 
 void xkaes::Word::rotate()
 {
-    ubyte_t tmp = this->m_data[0];
-    this->m_data[0]=this->m_data[1];
-    this->m_data[1]=this->m_data[2];
-    this->m_data[2]=this->m_data[3];
-    this->m_data[3]=tmp;
-    this->m_idata = (m_data[0] | m_data[1] | m_data[2] | m_data[3]);
+    /* WARNING assume we worked in LITTLE ENDIAN environment*/
+    ubyte_t tmp = this->u.m_data[3];
+    this->u.m_data[3]=this->u.m_data[2];
+    this->u.m_data[2]=this->u.m_data[1];
+    this->u.m_data[1]=this->u.m_data[0];
+    this->u.m_data[0]=tmp;
 }
 
 xkaes::xkaes(aeslen bitlen,aesmode mod)
@@ -197,7 +190,7 @@ void xkaes::key_expand(void)
     int i = 0;
     int totalexpkey=m_nb*(m_nr+1);
     while(i<m_nk){
-        m_expandkey[i] = Word(&m_key[4*i],4);
+        m_expandkey[i] = Word(&m_key[4*i]);
         ++i;
     }
     i = m_nk;
@@ -208,7 +201,7 @@ void xkaes::key_expand(void)
             // do rotation
             tmp.rotate();
             tmp.subtitute();
-            tmp ^= r_const[i/m_nk];
+            tmp ^= r_const[i/m_nk-1];
         }
         else if((m_nk > 6) && ((i % m_nk) == 4))
         {
@@ -273,24 +266,33 @@ int xkaes::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len
     return 0;
 }
 
-void xkaes::encrypt_block(payload_t::iterator out,payload_t::iterator in)
+void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
 {
-    wordarray_t state(4);
-    payload_t::iterator iter = in;
-    wordarray_t::iterator iterword = state.begin();
+    std::vector<xkaes::Word> state(4);
+    std::vector<xkaes::Word>::iterator iterword = state.begin();
+    ubyte_t* iter = pin;
     while(iterword != state.end())
     {
-        std::copy(iter,iter+4,iterword->data);
+        iterword->assign(iter);
         ++iterword;
         iter += 4;
+    }
+    int idx = 0;
+    // Add round key
+    iterword = state.begin();
+    while(iterword != state.end())
+    {
+        *iterword ^= m_expandkey[idx];
+
+        iterword++;
     }
 
     iterword = state.begin();
     while(iterword != state.end())
     {
-        std::copy(iterword->data,iterword->data+4,out);
+        std::copy(iterword->data(),(iterword->data() + 4),pout);
         ++iterword;
-        out+=4;
+        pout+=4;
     }
 
     

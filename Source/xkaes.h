@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <algorithm>
 
 class xkaes
 {
@@ -35,36 +36,58 @@ private:
     class Word
     {
     public:
-        explicit Word(const ubyte_t* pinput,size_t len)
+        explicit Word(const ubyte_t pinput[4])
         {
-            std::copy(pinput,pinput+4,m_data);
-            m_idata = (m_data[0] << 24) | (m_data[1] << 16) | (m_data[2] << 8) | m_data[3];
+            this->u.m_idata = (pinput[0] << 24) | (pinput[1] << 16) | (pinput[2] << 8) | pinput[3];
         }
 
         explicit Word(void) { /* do nothing */ }
+        inline ubyte_t* data(void )
+        {
+            return this->u.m_data; 
+        }
+
+        inline void assign(const ubyte_t in[4]) 
+        {
+            this->u.m_idata = ((in[0] << 24 )| (in[1] << 16 ) | (in[2] << 8 ) | in[3]);
+        }
         
         void subtitute();
         void rotate();
 
         Word& operator ^= (__int32 rhs)
         {
-            m_idata = m_idata^rhs;
+            this->u.m_idata = this->u.m_idata ^ rhs;
             return *this;
         }
 
-        Word& operator ^ (Word& rhs)
+        Word& operator ^= (const Word& rhs)
         {
-            m_idata = m_idata ^ rhs.m_idata;
+            this->u.m_idata = this->u.m_idata ^ rhs.u.m_idata;
             return *this;
+        }
+
+        Word operator ^ (Word& rhs)
+        {
+            Word retval;
+            retval.u.m_idata = this->u.m_idata ^ rhs.u.m_idata;
+            return retval;
         }
         
 
-        Word& operator = (Word& rhs);
+        Word& operator = (const Word& rhs)
+        {
+            this->u.m_idata = rhs.u.m_idata;
+            return *this;
+        }
 
     private:
-        ubyte_t m_data[4];
-        unsigned __int32 m_idata;
+        union{
+            ubyte_t m_data[4];
+            unsigned __int32 m_idata;
+        } u;
     };
+
 
 public:
     explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
@@ -87,7 +110,7 @@ private:
     void subs_word(aesword inout);
     void key_expand(void);
     void add_roundkey(wordarray_t& inout,iterword_t begin, iterword_t end);
-    void encrypt_block(payload_t::iterator out,payload_t::iterator in);
+    void encrypt_block(ubyte_t* pout, ubyte_t* const pin);
 
 private:
     payload_t m_iv;
