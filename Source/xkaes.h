@@ -81,6 +81,13 @@ private:
             return *this;
         }
 
+        ubyte_t& operator[](std::size_t index)
+        {
+            assert(index<4);
+            /* dikarenakan endiannes = LITTLE ENDIAN */
+            return u.m_data[3-index];
+        }
+
     private:
         union{
             ubyte_t m_data[4];
@@ -109,7 +116,10 @@ private:
     void rotate_word(aesword inout);
     void subs_word(aesword inout);
     void key_expand(void);
-    void add_roundkey(wordarray_t& inout,iterword_t begin, iterword_t end);
+    void addroundkey(std::vector<Word>& rstate,int beginkey);
+    void subsbytes(std::vector<Word>& rstate);
+    void shiftrow(std::vector<Word>& rstate);
+    void mixcolumns(std::vector<Word>& rstate);
     void encrypt_block(ubyte_t* pout, ubyte_t* const pin);
 
 private:

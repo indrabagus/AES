@@ -268,7 +268,7 @@ int xkaes::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len
 
 void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
 {
-    std::vector<xkaes::Word> state(4);
+    static std::vector<xkaes::Word> state(4);
     std::vector<xkaes::Word>::iterator iterword = state.begin();
     ubyte_t* iter = pin;
     while(iterword != state.end())
@@ -277,14 +277,20 @@ void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
         ++iterword;
         iter += 4;
     }
+    
     int idx = 0;
     // Add round key
     iterword = state.begin();
     while(iterword != state.end())
     {
         *iterword ^= m_expandkey[idx];
-
         iterword++;
+        ++idx;
+    }
+
+    for(int rnd=1;rnd<m_nr;++rnd)
+    {
+        
     }
 
     iterword = state.begin();
@@ -300,16 +306,56 @@ void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
 }
 
 
-void xkaes::add_roundkey(wordarray_t& inout,iterword_t begin, iterword_t end)
-{
-    assert(inout.size() != 4);
-    iterword_t iter = begin;
-    iterword_t iterdata = inout.begin();
-    while(iter!=end)
-    {
-        iterdata->idata = iterdata->idata ^ iter->idata;
-        ++iterdata;
-        ++iter;
-    }
+ void xkaes::addroundkey(std::vector<Word>& rstate,int beginkey)
+ {
+     assert((beginkey) < (m_expandkey.size()-3));
+     assert(rstate.size() == 4);
+     std::vector<Word>::iterator iter = rstate.begin();
+     int idx = beginkey;
+     while(iter != rstate.end())
+     {
+         *iter ^= m_expandkey[idx];
+         ++iter;
+         ++idx;
+     }
+ }
 
-}
+
+ void xkaes::subsbytes(std::vector<Word>& rstate)
+ {
+     assert(rstate.size() == 4);
+     std::vector<Word>::iterator iter = rstate.begin();
+     while(iter != rstate.end())
+     {
+         iter->subtitute();
+         ++iter;
+     }
+ }
+
+
+ void xkaes::shiftrow(std::vector<Word>& rstate)
+ {
+     /* dumb and lazy implementation */
+     static ubyte_t temp[4];
+     temp[0] = rstate[0][1];
+     rstate[0][1] = rstate[1][1];
+     rstate[1][1] = rstate[2][1];
+     rstate[2][1] = rstate[3][1];
+     rstate[3][1] = temp[0];
+
+     temp[0] = rstate[0][2];temp[1]=rstate[1][2];
+     rstate[0][2] = rstate[2][2];
+     rstate[1][2] = rstate[3][2];
+     rstate[2][2] = temp[0];
+     rstate[3][2] = temp[1];
+
+     temp[0] = rstate[0][3];temp[1]=rstate[1][3];temp[2]=rstate[2][3];
+     rstate[0][3] = rstate[3][3];
+     rstate[1][3] = temp[0];
+     rstate[2][3] = temp[1];
+     rstate[3][3] = temp[2];
+ }
+
+
+void xkaes::mixcolumns(std::vector<Word>& rstate)
+{}
