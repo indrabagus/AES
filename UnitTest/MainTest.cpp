@@ -32,4 +32,18 @@ BOOST_AUTO_TEST_CASE(setkeynothrow)
     BOOST_CHECK_NO_THROW( aes.set_key(key.data(),key.size()));
 }
 
+BOOST_AUTO_TEST_CASE(setivnull)
+{
+    xkaes aes(xkaes::bitlen192);
+    BOOST_CHECK_THROW(aes.set_iv(NULL,0),std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(setiverrorlen)
+{
+    boost::array<unsigned char,8> iv = {{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08}};
+    xkaes aes(xkaes::bitlen192);
+    BOOST_CHECK_THROW(aes.set_iv(iv.data(),iv.size()),std::exception);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END();

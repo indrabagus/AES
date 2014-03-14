@@ -272,12 +272,19 @@ void xkaes::key_expand(void)
     }
 }
 
+void xkaes::set_iv(const void* piv, size_t len)
+{
+    if(len != 16)
+        throw std::length_error("IV length should be 16");
+
+    ubyte_t* pbyte = (ubyte_t*)piv;
+    std::copy(pbyte,pbyte+len,m_iv.begin());
+}
+
 
 void xkaes::set_iv(const std::vector<unsigned char>& vect)
 {
-    if(vect.size() < 16)
-        throw std::length_error("Length IV should be 16 byte");
-    std::copy(vect.begin(),vect.end(),m_iv.begin());
+    this->set_iv(vect.data(),vect.size());
 }
 
 
