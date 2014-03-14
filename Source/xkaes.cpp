@@ -155,6 +155,66 @@ void xkaes::Word::rotate()
     this->u.m_data[0]=tmp;
 }
 
+xkaes::ubyte_t xkaes::Word::galoismult(ubyte_t a, ubyte_t b)
+{
+    unsigned int result;
+    if((a==0) || (b==0))
+        return 0;
+
+    if(a==1)
+        return b;
+
+    if(b==1)
+        return a;
+
+    result = l_table[a] + l_table[b];
+    if(result > 0xFF){
+        result -= 0xFF;
+    }
+    result = e_table[result];
+
+    return ((ubyte_t) (result & 0xFF));
+}
+
+/*
+    | X0 |   | 0x02  0x03  0x01  0x01 |   | S0 |
+    | X1 |   | 0x01  0x02  0x03  0x01 |   | S1 |
+    | X2 | = | 0x01  0x01  0x02  0x03 | . | S2 |
+    | X3 |   | 0x03  0x01  0x01  0x02 |   | S3 |
+
+As a result of this multiplication, the four bytes in a column are replaced by the following:
+    
+*/
+void xkaes::Word::mixcolumntransform(void)
+{
+    ubyte_t tmp[4];
+    tmp[0] = galoismult(this->u.m_data[3],0x02) ^ 
+             galoismult(this->u.m_data[2],0x03) ^ 
+             this->u.m_data[1] ^ this->u.m_data[0];
+    
+    tmp[1] = this->u.m_data[3] ^ 
+             galoismult(this->u.m_data[2],2) ^
+             galoismult(this->u.m_data[1],3) ^
+             this->u.m_data[0];
+
+    tmp[2] = this->u.m_data[3] ^ 
+             this->u.m_data[2] ^
+             galoismult(this->u.m_data[1],2) ^
+             galoismult(this->u.m_data[0],3);
+
+    tmp[3] = galoismult(this->u.m_data[3],3) ^ 
+             this->u.m_data[2] ^
+             this->u.m_data[1] ^
+             galoismult(this->u.m_data[0],2);
+
+    this->u.m_data[3] = tmp[0];
+    this->u.m_data[2] = tmp[1];
+    this->u.m_data[1] = tmp[2];
+    this->u.m_data[0] = tmp[3];
+
+}
+
+
 xkaes::xkaes(aeslen bitlen,aesmode mod)
     :m_bitlen(bitlen)
     ,m_mode(mod)

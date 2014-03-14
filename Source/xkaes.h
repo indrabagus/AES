@@ -54,6 +54,8 @@ private:
         
         void subtitute();
         void rotate();
+        ubyte_t galoismult(ubyte_t a, ubyte_t b);
+        void mixcolumntransform(void);
 
         Word& operator ^= (__int32 rhs)
         {
