@@ -42,9 +42,15 @@ private:
         }
 
         explicit Word(void) { /* do nothing */ }
-        inline ubyte_t* data(void )
+
+        ubyte_t* data(void )
         {
-            return this->u.m_data; 
+            /* this mirror is just dumb solution for damned little endianess thing */
+            m_mirror[0] = this->u.m_data[3];
+            m_mirror[1] = this->u.m_data[2];
+            m_mirror[2] = this->u.m_data[1];
+            m_mirror[3] = this->u.m_data[0];
+            return m_mirror;
         }
 
         inline void assign(const ubyte_t in[4]) 
@@ -91,6 +97,7 @@ private:
         }
 
     private:
+        ubyte_t m_mirror[4];
         union{
             ubyte_t m_data[4];
             unsigned __int32 m_idata;
@@ -108,7 +115,7 @@ public:
     void set_key(const std::vector<unsigned char>& vect);
 
     /* dangerous function, since i assume the length of output buffer should be the same size of datalen */
-    size_t encrypt(void* poutput,const void* indata, size_t datalen);
+    size_t encrypt(void* poutput,const void* indata, size_t datalen)throw(...);
     size_t encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len);
 
     int decrypt(void* poutput,const void* indata,size_t datalen);
@@ -122,10 +129,10 @@ private:
     void subsbytes(std::vector<Word>& rstate);
     void shiftrow(std::vector<Word>& rstate);
     void mixcolumns(std::vector<Word>& rstate);
-    void encrypt_block(ubyte_t* pout, ubyte_t* const pin);
+    void encrypt_block(std::vector<Word>& inoutstate);
 
 private:
-    payload_t m_iv;
+    std::vector<Word> m_iv;
     payload_t m_key;
     aeslen m_bitlen;
     aesmode m_mode;

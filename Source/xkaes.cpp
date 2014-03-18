@@ -218,7 +218,7 @@ void xkaes::Word::mixcolumntransform(void)
 xkaes::xkaes(aeslen bitlen,aesmode mod)
     :m_bitlen(bitlen)
     ,m_mode(mod)
-    ,m_iv(16)
+    ,m_iv(4)
     ,m_key(bitlen/8)
     ,m_nb(4)
 {
@@ -274,11 +274,18 @@ void xkaes::key_expand(void)
 
 void xkaes::set_iv(const void* piv, size_t len)
 {
+    assert(m_iv.size() == 4);
     if(len != 16)
         throw std::length_error("IV length should be 16");
 
     ubyte_t* pbyte = (ubyte_t*)piv;
-    std::copy(pbyte,pbyte+len,m_iv.begin());
+    std::vector<Word>::iterator iter = m_iv.begin();
+    while(iter != m_iv.end())
+    {
+        iter->assign(pbyte);
+        ++iter;
+        pbyte += 4;
+    }
 }
 
 
@@ -306,13 +313,49 @@ void xkaes::set_key(const std::vector<unsigned char>& vect)
 
 size_t xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 {
-    ubyte_t* pdata = (ubyte_t*)indata;
-    
-    if(m_mode == cbc)
-    {
+    if(datalen % 16)
+        throw std::length_error("Data len should multiple 16 bytes");
 
-    }
-    return 0;
+    ubyte_t* pdata = (ubyte_t*)indata;
+    ubyte_t* piterout = (ubyte_t*)poutput;
+    static std::vector<Word> winputs(4);
+    static std::vector<Word>::iterator witer;
+    for(int i = 0; i < datalen;i+=16)
+    {
+        witer = winputs.begin();
+        while(witer != winputs.end()){
+            witer->assign(pdata);
+            pdata+=4;
+            ++witer;
+        }
+
+        if(m_mode == cbc){
+            winputs[0] = winputs[0] ^ m_iv[0];
+            winputs[1] = winputs[1] ^ m_iv[1];
+            winputs[2] = winputs[2] ^ m_iv[2];
+            winputs[3] = winputs[3] ^ m_iv[3];
+        }
+        
+        /* block encrypt */
+        encrypt_block(winputs);
+
+        /* jika cbc update iv-nya*/
+        if(m_mode == cbc){
+            m_iv[0] = winputs[0];
+            m_iv[1] = winputs[1];
+            m_iv[2] = winputs[2];
+            m_iv[3] = winputs[3];
+        }
+        /* kembalikan dalam bentuk poutput*/
+        witer = winputs.begin();
+        while(witer != winputs.end()){
+            std::copy(witer->data(),witer->data()+4,piterout);
+            piterout+=4;
+            ++witer;
+        }
+
+    } // end of big block aes data looping
+    return datalen;
 }
 
 
@@ -333,42 +376,19 @@ int xkaes::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len
     return 0;
 }
 
-void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
+void xkaes::encrypt_block(std::vector<Word>& inoutstate)
 {
-    static std::vector<xkaes::Word> state(4);
-    std::vector<xkaes::Word>::iterator iterword = state.begin();
-    ubyte_t* iter = pin;
-    while(iterword != state.end())
-    {
-        iterword->assign(iter);
-        ++iterword;
-        iter += 4;
-    }
-    
-    int idx = 0;
-    // Add round key
-    iterword = state.begin();
-    while(iterword != state.end())
-    {
-        *iterword ^= m_expandkey[idx];
-        iterword++;
-        ++idx;
-    }
-
+    this->addroundkey(inoutstate,0);
     for(int rnd=1;rnd<m_nr;++rnd)
     {
-        
+        this->subsbytes(inoutstate);
+        this->shiftrow(inoutstate);
+        this->mixcolumns(inoutstate);
+        this->addroundkey(inoutstate,(rnd*m_nb));
     }
-
-    iterword = state.begin();
-    while(iterword != state.end())
-    {
-        std::copy(iterword->data(),(iterword->data() + 4),pout);
-        ++iterword;
-        pout+=4;
-    }
-
-    
+    this->subsbytes(inoutstate);
+    this->shiftrow(inoutstate);
+    this->addroundkey(inoutstate,(m_nr*m_nb));
 
 }
 
@@ -425,4 +445,10 @@ void xkaes::encrypt_block(ubyte_t* pout, ubyte_t* const pin)
 
 
 void xkaes::mixcolumns(std::vector<Word>& rstate)
-{}
+{
+    std::vector<Word>::iterator iter = rstate.begin();
+    while(iter != rstate.end()){
+        iter->mixcolumntransform();
+        ++iter;
+    }
+}
