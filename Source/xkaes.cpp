@@ -143,6 +143,13 @@ void xkaes::Word::subtitute()
     this->u.m_data[3] = xkaes::s_subs_box[this->u.m_data[3]];
 }
 
+void xkaes::Word::invsubtitute()
+{
+    this->u.m_data[0] = xkaes::s_rsubs_box[this->u.m_data[0]];
+    this->u.m_data[1] = xkaes::s_rsubs_box[this->u.m_data[1]];
+    this->u.m_data[2] = xkaes::s_rsubs_box[this->u.m_data[2]];
+    this->u.m_data[3] = xkaes::s_rsubs_box[this->u.m_data[3]];
+}
 
 
 void xkaes::Word::rotate()
@@ -361,7 +368,7 @@ size_t xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 
 size_t xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
 {
-    return 0;
+    return this->encrypt(out.data(),pinput,len);
 }
 
 
@@ -419,6 +426,16 @@ void xkaes::encrypt_block(std::vector<Word>& inoutstate)
      }
  }
 
+void xkaes::invertsubsbytes(std::vector<Word>& rstate)
+{
+    assert(rstate.size() == 4);
+    std::vector<Word>::iterator iter = rstate.begin();
+    while(iter != rstate.end()){
+        iter->invsubtitute();
+        ++iter;
+    }
+}
+
 
  void xkaes::shiftrow(std::vector<Word>& rstate)
  {
@@ -452,3 +469,4 @@ void xkaes::mixcolumns(std::vector<Word>& rstate)
         ++iter;
     }
 }
+
