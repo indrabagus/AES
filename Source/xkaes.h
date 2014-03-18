@@ -108,8 +108,8 @@ public:
     void set_key(const std::vector<unsigned char>& vect);
 
     /* dangerous function, since i assume the length of output buffer should be the same size of datalen */
-    int encrypt(void* poutput,const void* indata, size_t datalen);
-    int encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len);
+    size_t encrypt(void* poutput,const void* indata, size_t datalen);
+    size_t encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len);
 
     int decrypt(void* poutput,const void* indata,size_t datalen);
     int decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len);

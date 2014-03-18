@@ -304,7 +304,7 @@ void xkaes::set_key(const std::vector<unsigned char>& vect)
 }
 
 
-int xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
+size_t xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 {
     ubyte_t* pdata = (ubyte_t*)indata;
     
@@ -316,7 +316,7 @@ int xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 }
 
 
-int xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
+size_t xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
 {
     return 0;
 }
