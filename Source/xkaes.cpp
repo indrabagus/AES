@@ -446,17 +446,16 @@ int xkaes::decrypt(void* poutput,const void* indata,size_t datalen)
             winputs[3] = winputs[3] ^ m_iv[3];
 
             /* update IV */
-            m_iv[0] = witerivtemp[0];
-            m_iv[1] = witerivtemp[1];
-            m_iv[2] = witerivtemp[2];
-            m_iv[3] = witerivtemp[3];
-        }
+            m_iv[0] = wivtemp[0];
+            m_iv[1] = wivtemp[1];
+            m_iv[2] = wivtemp[2];
+            m_iv[3] = wivtemp[3];
 
 
-        /* jika cbc update iv-nya*/
-        if(m_mode == cbc){
 
         }
+
+
         /* kembalikan dalam bentuk poutput*/
         witer = winputs.begin();
         while(witer != winputs.end()){
