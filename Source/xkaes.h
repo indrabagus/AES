@@ -63,6 +63,7 @@ private:
         void rotate();
         ubyte_t galoismult(ubyte_t a, ubyte_t b);
         void mixcolumntransform(void);
+        void invertmixcoltrans();
 
         Word& operator ^= (__int32 rhs)
         {
@@ -131,9 +132,10 @@ private:
     void shiftrow(std::vector<Word>& rstate);
     void mixcolumns(std::vector<Word>& rstate);
     void encrypt_block(std::vector<Word>& inoutstate);
-    //void invertshiftrow(std::vector<Word>& rstate);
+    void decrypt_block(std::vector<Word>& inoutstate);
+    void invertshiftrow(std::vector<Word>& rstate);
     void invertsubsbytes(std::vector<Word>& rstate);
-    //void invertmixcolumns(std::vector<Word>& rstate);
+    void invertmixcolumns(std::vector<Word>& rstate);
 private:
     std::vector<Word> m_iv;
     payload_t m_key;

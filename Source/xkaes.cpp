@@ -184,17 +184,18 @@ xkaes::ubyte_t xkaes::Word::galoismult(ubyte_t a, ubyte_t b)
 }
 
 /*
+
+ As a result of this multiplication, the four bytes in a column are replaced by the following:
+
     | X0 |   | 0x02  0x03  0x01  0x01 |   | S0 |
     | X1 |   | 0x01  0x02  0x03  0x01 |   | S1 |
     | X2 | = | 0x01  0x01  0x02  0x03 | . | S2 |
     | X3 |   | 0x03  0x01  0x01  0x02 |   | S3 |
-
-As a result of this multiplication, the four bytes in a column are replaced by the following:
     
 */
 void xkaes::Word::mixcolumntransform(void)
 {
-    ubyte_t tmp[4];
+    static ubyte_t tmp[4];
     tmp[0] = galoismult(this->u.m_data[3],0x02) ^ 
              galoismult(this->u.m_data[2],0x03) ^ 
              this->u.m_data[1] ^ this->u.m_data[0];
@@ -220,7 +221,45 @@ void xkaes::Word::mixcolumntransform(void)
     this->u.m_data[0] = tmp[3];
 
 }
+/*
+    | S0 |   | 0x0e  0x0b  0x0d  0x09 |   | X0 |
+    | S1 |   | 0x09  0x0e  0x0b  0x0d |   | X1 |
+    | S2 | = | 0x0d  0x09  0x0e  0x0b | . | X2 |
+    | S3 |   | 0x0b  0x0d  0x09  0x0e |   | X3 |
 
+    catatan: Kita berada pada 'wilayah' Little endian 
+
+*/
+void xkaes::Word::invertmixcoltrans()
+{
+    static ubyte_t tmp[4];
+    tmp[0] = galoismult(this->u.m_data[3],0x0e) ^ 
+             galoismult(this->u.m_data[2],0x0b) ^ 
+             galoismult(this->u.m_data[1],0x0d) ^ 
+             galoismult(this->u.m_data[0],0x09);
+
+    tmp[1] = galoismult(this->u.m_data[3],0x09) ^ 
+             galoismult(this->u.m_data[2],0x0e) ^ 
+             galoismult(this->u.m_data[1],0x0b) ^ 
+             galoismult(this->u.m_data[0],0x0d);
+
+
+    tmp[2] = galoismult(this->u.m_data[3],0x0d) ^ 
+             galoismult(this->u.m_data[2],0x09) ^ 
+             galoismult(this->u.m_data[1],0x0e) ^ 
+             galoismult(this->u.m_data[0],0x0b);
+
+    tmp[3] = galoismult(this->u.m_data[3],0x0b) ^ 
+             galoismult(this->u.m_data[2],0x0d) ^ 
+             galoismult(this->u.m_data[1],0x09) ^ 
+             galoismult(this->u.m_data[0],0x0e);
+
+    this->u.m_data[3] = tmp[0];
+    this->u.m_data[2] = tmp[1];
+    this->u.m_data[1] = tmp[2];
+    this->u.m_data[0] = tmp[3];
+
+}
 
 xkaes::xkaes(aeslen bitlen,aesmode mod)
     :m_bitlen(bitlen)
@@ -372,9 +411,62 @@ size_t xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t
 }
 
 
+/* TODO optimasi dumb algorithm CBC */
 int xkaes::decrypt(void* poutput,const void* indata,size_t datalen)
 {
-    return 0;
+    if(datalen % 16)
+        throw std::length_error("Data len should multiple 16 bytes");
+
+    ubyte_t* pdata = (ubyte_t*)indata;
+    ubyte_t* piterout = (ubyte_t*)poutput;
+    static std::vector<Word> winputs(4);
+    static std::vector<Word> wivtemp(4);
+    static std::vector<Word>::iterator witer;
+    static std::vector<Word>::iterator witerivtemp;
+    for(int i = 0; i < datalen;i+=16)
+    {
+        witer = winputs.begin();
+        witerivtemp = wivtemp.begin();
+        while(witer != winputs.end()){
+            witer->assign(pdata);
+            witerivtemp->assign(pdata);
+            pdata+=4;
+            ++witer;
+            ++witerivtemp;
+        }
+
+        
+        /* block encrypt */
+        decrypt_block(winputs);
+
+        if(m_mode == cbc){
+            winputs[0] = winputs[0] ^ m_iv[0];
+            winputs[1] = winputs[1] ^ m_iv[1];
+            winputs[2] = winputs[2] ^ m_iv[2];
+            winputs[3] = winputs[3] ^ m_iv[3];
+
+            /* update IV */
+            m_iv[0] = witerivtemp[0];
+            m_iv[1] = witerivtemp[1];
+            m_iv[2] = witerivtemp[2];
+            m_iv[3] = witerivtemp[3];
+        }
+
+
+        /* jika cbc update iv-nya*/
+        if(m_mode == cbc){
+
+        }
+        /* kembalikan dalam bentuk poutput*/
+        witer = winputs.begin();
+        while(witer != winputs.end()){
+            std::copy(witer->data(),witer->data()+4,piterout);
+            piterout+=4;
+            ++witer;
+        }
+
+    } // end of big block aes data looping
+    return datalen;
 }
 
 
@@ -399,6 +491,21 @@ void xkaes::encrypt_block(std::vector<Word>& inoutstate)
 
 }
 
+
+void xkaes::decrypt_block(std::vector<Word>& inoutstate)
+{
+    this->addroundkey(inoutstate,(m_nr*m_nb));
+    for(int rnd = (m_nr-1);rnd>0;--rnd)
+    {
+        this->invertshiftrow(inoutstate);
+        this->invertsubsbytes(inoutstate);
+        this->addroundkey(inoutstate,(rnd*m_nb));
+        this->invertmixcolumns(inoutstate);
+    }
+    this->invertshiftrow(inoutstate);
+    this->invertsubsbytes(inoutstate);
+    this->addroundkey(inoutstate,0);
+}
 
  void xkaes::addroundkey(std::vector<Word>& rstate,int beginkey)
  {
@@ -436,11 +543,22 @@ void xkaes::invertsubsbytes(std::vector<Word>& rstate)
     }
 }
 
+/*
+ Menggeser matrik data ke arah 'kiri' sesuai dengan skema berikut ini
 
+ input data = { {00,10,20,30} {01,11,21,31}, { 02,12,22,32}, {03,13,23,33} }
+
+ | 00  01  02  03 |         | 00  01  02  03 |
+ | 10  11  12  13 |   -->   | 11  12  13  10 |
+ | 20  21  22  23 |   -->   | 22  23  20  21 |
+ | 30  31  32  33 |   -->   | 33  30  31  32 |
+
+
+ */
  void xkaes::shiftrow(std::vector<Word>& rstate)
  {
      /* dumb and lazy implementation */
-     static ubyte_t temp[4];
+     static ubyte_t temp[2];
      temp[0] = rstate[0][1];
      rstate[0][1] = rstate[1][1];
      rstate[1][1] = rstate[2][1];
@@ -452,20 +570,54 @@ void xkaes::invertsubsbytes(std::vector<Word>& rstate)
      rstate[1][2] = rstate[3][2];
      rstate[2][2] = temp[0];
      rstate[3][2] = temp[1];
-
-     temp[0] = rstate[0][3];temp[1]=rstate[1][3];temp[2]=rstate[2][3];
-     rstate[0][3] = rstate[3][3];
-     rstate[1][3] = temp[0];
-     rstate[2][3] = temp[1];
-     rstate[3][3] = temp[2];
+     
+     temp[0] = rstate[3][3];
+     rstate[3][3] = rstate[2][3];
+     rstate[2][3] = rstate[1][3];
+     rstate[1][3] = rstate[0][3];
+     rstate[0][3] = temp[0];
  }
 
+
+ /* serupa dengan proses shiftrow diatas, tapi dibalik */
+ void xkaes::invertshiftrow(std::vector<Word>& rstate)
+ {
+     /* Another dumb and lazy implementation */
+     static ubyte_t temp[2];
+     temp[0] = rstate[3][1];
+     rstate[3][1] = rstate[2][1];
+     rstate[2][1] = rstate[1][1];
+     rstate[1][1] = rstate[0][1];
+     rstate[0][1] = temp[0];
+
+     temp[0] = rstate[2][2];temp[1]=rstate[3][2];
+     rstate[2][2] = rstate[0][2];
+     rstate[3][2] = rstate[1][2];
+     rstate[0][2] = temp[0];
+     rstate[1][2] = temp[1];
+
+     temp[0] = rstate[0][3];
+     rstate[0][3] = rstate[1][3];
+     rstate[1][3] = rstate[2][3];
+     rstate[2][3] = rstate[3][3];
+     rstate[3][3] = temp[0];
+ }
 
 void xkaes::mixcolumns(std::vector<Word>& rstate)
 {
     std::vector<Word>::iterator iter = rstate.begin();
     while(iter != rstate.end()){
         iter->mixcolumntransform();
+        ++iter;
+    }
+}
+
+void xkaes::invertmixcolumns(std::vector<Word>& rstate)
+{
+    std::vector<Word>::iterator iter = rstate.begin();
+    while(iter != rstate.end())
+    {
+        iter->invertmixcoltrans();
         ++iter;
     }
 }
