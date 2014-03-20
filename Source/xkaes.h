@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-class xkaes
+class XK_AES
 {
 
 public:
@@ -108,7 +108,7 @@ private:
 
 
 public:
-    explicit xkaes(aeslen bitlen=bitlen128,aesmode mod=cbc);
+    explicit XK_AES(aeslen bitlen=bitlen128,aesmode mod=cbc);
     void set_iv(const void* piv,size_t len)throw(...);
     void set_iv(const std::vector<unsigned char>& vect);
 
@@ -165,11 +165,11 @@ private:
 /*
     USAGE:
     ======
-    xkaes xkaes(xkaes::bit192,xkaes::cbc);
+    XK_AES XK_AES(XK_AES::bit192,XK_AES::cbc);
     try{
-        xkaes.set_iv(piv,ivlen);
-        xkaes.set_key(pkey,keylen);
-        xkaes.encrypt(output,static_cast<void*)(szdata.c_str())
+        XK_AES.set_iv(piv,ivlen);
+        XK_AES.set_key(pkey,keylen);
+        XK_AES.encrypt(output,static_cast<void*)(szdata.c_str())
     }catch(std::exception& ex){
         std::cout<<"exception occured, what="<<ex.what()<<std::endl;
     }

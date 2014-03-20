@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_SUITE(aes128testsuite)
     {
         using namespace aes128::cbcmmt7;
         boost::array<unsigned char,128> result;
-        xkaes aes(xkaes::bitlen128);
+        XK_AES aes(XK_AES::bitlen128);
         BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
         BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
         size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_SUITE(aes128testsuite)
     {
         using namespace aes128::cbcmmt7;
         boost::array<unsigned char,128> result;
-        xkaes aes(xkaes::bitlen128);
+        XK_AES aes(XK_AES::bitlen128);
         BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
         BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
         size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -288,13 +288,13 @@ BOOST_AUTO_TEST_CASE(setkeyerror)
 {
     boost::array<unsigned char,16> key = {{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,
                                           0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08}};
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_THROW(aes.set_key(key.data(),key.size()),std::exception); 
 }
 
 BOOST_AUTO_TEST_CASE(setkeyerrornull)
 {
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_THROW(aes.set_key(NULL,0),std::exception); 
 }
 
@@ -303,20 +303,20 @@ BOOST_AUTO_TEST_CASE(setkeynothrow)
     boost::array<unsigned char,24> key = {{0x8e,0x73,0xb0,0xf7,0xda,0x0e,0x64,0x52,0xc8,0x10,0xf3,0x2b,
                                            0x80,0x90,0x79,0xe5,0x62,0xf8,0xea,0xd2,0x52,0x2c,0x6b,0x7b
                                          }};
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW( aes.set_key(key.data(),key.size()));
 }
 
 BOOST_AUTO_TEST_CASE(setivnull)
 {
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_THROW(aes.set_iv(NULL,0),std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(setiverrorlen)
 {
     boost::array<unsigned char,8> iv = {{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08}};
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_THROW(aes.set_iv(iv.data(),iv.size()),std::exception);
 }
 
@@ -324,14 +324,14 @@ BOOST_AUTO_TEST_CASE(setiv)
 {
     boost::array<unsigned char,16> iv = {{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,
                                           0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08}};
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
 }
 
 BOOST_AUTO_TEST_CASE(setiv2)
 {
     std::vector<unsigned char> iv(16);
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv));
 }
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt0encrypt)
 
     boost::array<unsigned char,16> result;
 
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt1encrypt)
     
     using namespace aes192::cbcmmt1;
     boost::array<unsigned char,32> result;
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt0_decrypt)
 {
     using namespace aes192::cbcmmt0;
     boost::array<unsigned char,16> result;
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv( iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt1decrypt)
     using namespace aes192::cbcmmt1;
     boost::array<unsigned char,32> result;
 
-    xkaes aes(xkaes::bitlen192);
+    XK_AES aes(XK_AES::bitlen192);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt0encrypt)
 {
     using namespace aes256::cbcmmt0;
     boost::array<unsigned char,16> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt0decrypt)
 {
     using namespace aes256::cbcmmt0;
     boost::array<unsigned char,16> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt1encrypt)
 {
     using namespace aes256::cbcmmt1;
     boost::array<unsigned char,32> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt1decrypt)
 {
     using namespace aes256::cbcmmt1;
     boost::array<unsigned char,32> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -460,7 +460,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt2encrypt)
 {
     using namespace aes256::cbcmmt2;
     boost::array<unsigned char,48> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt2decrypt)
 {
     using namespace aes256::cbcmmt2;
     boost::array<unsigned char,48> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());
@@ -486,7 +486,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt3encrypt)
 {
     using namespace aes256::cbcmmt3;
     boost::array<unsigned char,64> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.encrypt(result.data(),plaintext.data(),plaintext.size());
@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE(cbcmmt3decrypt)
 {
     using namespace aes256::cbcmmt3;
     boost::array<unsigned char,64> result;
-    xkaes aes(xkaes::bitlen256);
+    XK_AES aes(XK_AES::bitlen256);
     BOOST_CHECK_NO_THROW(aes.set_iv(iv.data(),iv.size()));
     BOOST_CHECK_NO_THROW(aes.set_key(key.data(),key.size()));
     size_t size = aes.decrypt(result.data(),ciphertext.data(),ciphertext.size());

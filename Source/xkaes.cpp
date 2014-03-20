@@ -7,7 +7,7 @@
 
 
     
-xkaes::ubyte_t xkaes::s_subs_box[256] = {
+XK_AES::ubyte_t XK_AES::s_subs_box[256] = {
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
     0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 
@@ -28,7 +28,7 @@ xkaes::ubyte_t xkaes::s_subs_box[256] = {
 
 
 
-xkaes::ubyte_t xkaes::s_rsubs_box[256] = {
+XK_AES::ubyte_t XK_AES::s_rsubs_box[256] = {
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb, 
     0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 
     0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e, 
@@ -51,7 +51,7 @@ xkaes::ubyte_t xkaes::s_rsubs_box[256] = {
 
 
 
-__int32 xkaes::r_const[15] = {
+__int32 XK_AES::r_const[15] = {
     0x01000000,
     0x02000000, 
     0x04000000,
@@ -69,7 +69,7 @@ __int32 xkaes::r_const[15] = {
     0x9A000000
 };
 
-xkaes::ubyte_t xkaes::mul_matrix_encr[4][4] = {
+XK_AES::ubyte_t XK_AES::mul_matrix_encr[4][4] = {
     {0x02, 0x03, 0x01, 0x01},
     {0x01, 0x02, 0x03, 0x01},
     {0x01, 0x01, 0x02, 0x03},
@@ -77,14 +77,14 @@ xkaes::ubyte_t xkaes::mul_matrix_encr[4][4] = {
 };
 
 
-xkaes::ubyte_t xkaes::mul_matrix_decr[4][4] = {
+XK_AES::ubyte_t XK_AES::mul_matrix_decr[4][4] = {
     {0x0E, 0x0B, 0x0D, 0x09}, 
     {0x09, 0x0E, 0x0B, 0x0D},
     {0x0D, 0x09, 0x0E, 0x0B},
     {0x0B, 0x0D, 0x09, 0x0E} 
 };
 
-xkaes::ubyte_t xkaes::e_table[256]={
+XK_AES::ubyte_t XK_AES::e_table[256]={
     0x01, 0x03, 0x05, 0x0F, 0x11, 0x33, 0x55, 0xFF, 0x1A, 0x2E, 0x72, 0x96, 0xA1, 0xF8, 0x13, 0x35,
     0x5F, 0xE1, 0x38, 0x48, 0xD8, 0x73, 0x95, 0xA4, 0xF7, 0x02, 0x06, 0x0A, 0x1E, 0x22, 0x66, 0xAA,
     0xE5, 0x34, 0x5C, 0xE4, 0x37, 0x59, 0xEB, 0x26, 0x6A, 0xBE, 0xD9, 0x70, 0x90, 0xAB, 0xE6, 0x31,
@@ -103,7 +103,7 @@ xkaes::ubyte_t xkaes::e_table[256]={
     0x39, 0x4B, 0xDD, 0x7C, 0x84, 0x97, 0xA2, 0xFD, 0x1C, 0x24, 0x6C, 0xB4, 0xC7, 0x52, 0xF6, 0x01
 };
 
-xkaes::ubyte_t xkaes::l_table[256] = {
+XK_AES::ubyte_t XK_AES::l_table[256] = {
     0x00, 0x00, 0x19, 0x01, 0x32, 0x02, 0x1A, 0xC6, 0x4B, 0xC7, 0x1B, 0x68, 0x33, 0xEE, 0xDF, 0x03,
     0x64, 0x04, 0xE0, 0x0E, 0x34, 0x8D, 0x81, 0xEF, 0x4C, 0x71, 0x08, 0xC8, 0xF8, 0x69, 0x1C, 0xC1,
     0x7D, 0xC2, 0x1D, 0xB5, 0xF9, 0xB9, 0x27, 0x6A, 0x4D, 0xE4, 0xA6, 0x72, 0x9A, 0xC9, 0x09, 0x78,
@@ -123,36 +123,36 @@ xkaes::ubyte_t xkaes::l_table[256] = {
 };
 
 /* const RB dan const Zero digunakan saat proses penghitungan AES CMAC */
-xkaes::ubyte_t xkaes::const_rb[16] = { 
+XK_AES::ubyte_t XK_AES::const_rb[16] = { 
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87 
 };
 
 
-xkaes::ubyte_t xkaes::const_zero[16] = { 
+XK_AES::ubyte_t XK_AES::const_zero[16] = { 
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
 };
 
 
-void xkaes::Word::subtitute()
+void XK_AES::Word::subtitute()
 {
-    this->u.m_data[0] = xkaes::s_subs_box[this->u.m_data[0]];
-    this->u.m_data[1] = xkaes::s_subs_box[this->u.m_data[1]];
-    this->u.m_data[2] = xkaes::s_subs_box[this->u.m_data[2]];
-    this->u.m_data[3] = xkaes::s_subs_box[this->u.m_data[3]];
+    this->u.m_data[0] = XK_AES::s_subs_box[this->u.m_data[0]];
+    this->u.m_data[1] = XK_AES::s_subs_box[this->u.m_data[1]];
+    this->u.m_data[2] = XK_AES::s_subs_box[this->u.m_data[2]];
+    this->u.m_data[3] = XK_AES::s_subs_box[this->u.m_data[3]];
 }
 
-void xkaes::Word::invsubtitute()
+void XK_AES::Word::invsubtitute()
 {
-    this->u.m_data[0] = xkaes::s_rsubs_box[this->u.m_data[0]];
-    this->u.m_data[1] = xkaes::s_rsubs_box[this->u.m_data[1]];
-    this->u.m_data[2] = xkaes::s_rsubs_box[this->u.m_data[2]];
-    this->u.m_data[3] = xkaes::s_rsubs_box[this->u.m_data[3]];
+    this->u.m_data[0] = XK_AES::s_rsubs_box[this->u.m_data[0]];
+    this->u.m_data[1] = XK_AES::s_rsubs_box[this->u.m_data[1]];
+    this->u.m_data[2] = XK_AES::s_rsubs_box[this->u.m_data[2]];
+    this->u.m_data[3] = XK_AES::s_rsubs_box[this->u.m_data[3]];
 }
 
 
-void xkaes::Word::rotate()
+void XK_AES::Word::rotate()
 {
     /* WARNING assume we worked in LITTLE ENDIAN environment*/
     ubyte_t tmp = this->u.m_data[3];
@@ -162,7 +162,7 @@ void xkaes::Word::rotate()
     this->u.m_data[0]=tmp;
 }
 
-xkaes::ubyte_t xkaes::Word::galoismult(ubyte_t a, ubyte_t b)
+XK_AES::ubyte_t XK_AES::Word::galoismult(ubyte_t a, ubyte_t b)
 {
     unsigned int result;
     if((a==0) || (b==0))
@@ -193,7 +193,7 @@ xkaes::ubyte_t xkaes::Word::galoismult(ubyte_t a, ubyte_t b)
     | X3 |   | 0x03  0x01  0x01  0x02 |   | S3 |
     
 */
-void xkaes::Word::mixcolumntransform(void)
+void XK_AES::Word::mixcolumntransform(void)
 {
     static ubyte_t tmp[4];
     tmp[0] = galoismult(this->u.m_data[3],0x02) ^ 
@@ -230,7 +230,7 @@ void xkaes::Word::mixcolumntransform(void)
     catatan: Kita berada pada 'wilayah' Little endian 
 
 */
-void xkaes::Word::invertmixcoltrans()
+void XK_AES::Word::invertmixcoltrans()
 {
     static ubyte_t tmp[4];
     tmp[0] = galoismult(this->u.m_data[3],0x0e) ^ 
@@ -261,7 +261,7 @@ void xkaes::Word::invertmixcoltrans()
 
 }
 
-xkaes::xkaes(aeslen bitlen,aesmode mod)
+XK_AES::XK_AES(aeslen bitlen,aesmode mod)
     :m_bitlen(bitlen)
     ,m_mode(mod)
     ,m_iv(4)
@@ -290,9 +290,9 @@ xkaes::xkaes(aeslen bitlen,aesmode mod)
 }
 
 
-void xkaes::key_expand(void)
+void XK_AES::key_expand(void)
 {
-    xkaes::Word tmp;
+    XK_AES::Word tmp;
     int i = 0;
     int totalexpkey=m_nb*(m_nr+1);
     while(i<m_nk){
@@ -318,7 +318,7 @@ void xkaes::key_expand(void)
     }
 }
 
-void xkaes::set_iv(const void* piv, size_t len)
+void XK_AES::set_iv(const void* piv, size_t len)
 {
     assert(m_iv.size() == 4);
     if(len != 16)
@@ -335,13 +335,13 @@ void xkaes::set_iv(const void* piv, size_t len)
 }
 
 
-void xkaes::set_iv(const std::vector<unsigned char>& vect)
+void XK_AES::set_iv(const std::vector<unsigned char>& vect)
 {
     this->set_iv(vect.data(),vect.size());
 }
 
 
-void xkaes::set_key(const void* pkey, size_t len)
+void XK_AES::set_key(const void* pkey, size_t len)
 {
     if((len*8) != m_bitlen)
         throw std::length_error("Key len doesn't match with current AES bit len");
@@ -351,13 +351,13 @@ void xkaes::set_key(const void* pkey, size_t len)
 }
 
 
-void xkaes::set_key(const std::vector<unsigned char>& vect)
+void XK_AES::set_key(const std::vector<unsigned char>& vect)
 {
     set_key(vect.data(),vect.size());
 }
 
 
-size_t xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
+size_t XK_AES::encrypt(void* poutput,const void* indata, size_t datalen)
 {
     if(datalen % 16)
         throw std::length_error("Data len should multiple 16 bytes");
@@ -405,14 +405,14 @@ size_t xkaes::encrypt(void* poutput,const void* indata, size_t datalen)
 }
 
 
-size_t xkaes::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
+size_t XK_AES::encrypt(std::vector<unsigned char>& out,const void* pinput, size_t len)
 {
     return this->encrypt(out.data(),pinput,len);
 }
 
 
 /* TODO optimasi dumb algorithm CBC */
-int xkaes::decrypt(void* poutput,const void* indata,size_t datalen)
+int XK_AES::decrypt(void* poutput,const void* indata,size_t datalen)
 {
     if(datalen % 16)
         throw std::length_error("Data len should multiple 16 bytes");
@@ -469,12 +469,12 @@ int xkaes::decrypt(void* poutput,const void* indata,size_t datalen)
 }
 
 
-int xkaes::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len)
+int XK_AES::decrypt(std::vector<unsigned char>& out,const void* pinput,size_t len)
 {
     return 0;
 }
 
-void xkaes::encrypt_block(std::vector<Word>& inoutstate)
+void XK_AES::encrypt_block(std::vector<Word>& inoutstate)
 {
     this->addroundkey(inoutstate,0);
     for(int rnd=1;rnd<m_nr;++rnd)
@@ -491,7 +491,7 @@ void xkaes::encrypt_block(std::vector<Word>& inoutstate)
 }
 
 
-void xkaes::decrypt_block(std::vector<Word>& inoutstate)
+void XK_AES::decrypt_block(std::vector<Word>& inoutstate)
 {
     this->addroundkey(inoutstate,(m_nr*m_nb));
     for(int rnd = (m_nr-1);rnd>0;--rnd)
@@ -506,7 +506,7 @@ void xkaes::decrypt_block(std::vector<Word>& inoutstate)
     this->addroundkey(inoutstate,0);
 }
 
- void xkaes::addroundkey(std::vector<Word>& rstate,int beginkey)
+ void XK_AES::addroundkey(std::vector<Word>& rstate,int beginkey)
  {
      assert((beginkey) < (m_expandkey.size()-3));
      assert(rstate.size() == 4);
@@ -521,7 +521,7 @@ void xkaes::decrypt_block(std::vector<Word>& inoutstate)
  }
 
 
- void xkaes::subsbytes(std::vector<Word>& rstate)
+ void XK_AES::subsbytes(std::vector<Word>& rstate)
  {
      assert(rstate.size() == 4);
      std::vector<Word>::iterator iter = rstate.begin();
@@ -532,7 +532,7 @@ void xkaes::decrypt_block(std::vector<Word>& inoutstate)
      }
  }
 
-void xkaes::invertsubsbytes(std::vector<Word>& rstate)
+void XK_AES::invertsubsbytes(std::vector<Word>& rstate)
 {
     assert(rstate.size() == 4);
     std::vector<Word>::iterator iter = rstate.begin();
@@ -554,7 +554,7 @@ void xkaes::invertsubsbytes(std::vector<Word>& rstate)
 
 
  */
- void xkaes::shiftrow(std::vector<Word>& rstate)
+ void XK_AES::shiftrow(std::vector<Word>& rstate)
  {
      /* dumb and lazy implementation */
      static ubyte_t temp[2];
@@ -579,7 +579,7 @@ void xkaes::invertsubsbytes(std::vector<Word>& rstate)
 
 
  /* serupa dengan proses shiftrow diatas, tapi dibalik */
- void xkaes::invertshiftrow(std::vector<Word>& rstate)
+ void XK_AES::invertshiftrow(std::vector<Word>& rstate)
  {
      /* Another dumb and lazy implementation */
      static ubyte_t temp[2];
@@ -602,7 +602,7 @@ void xkaes::invertsubsbytes(std::vector<Word>& rstate)
      rstate[3][3] = temp[0];
  }
 
-void xkaes::mixcolumns(std::vector<Word>& rstate)
+void XK_AES::mixcolumns(std::vector<Word>& rstate)
 {
     std::vector<Word>::iterator iter = rstate.begin();
     while(iter != rstate.end()){
@@ -611,7 +611,7 @@ void xkaes::mixcolumns(std::vector<Word>& rstate)
     }
 }
 
-void xkaes::invertmixcolumns(std::vector<Word>& rstate)
+void XK_AES::invertmixcolumns(std::vector<Word>& rstate)
 {
     std::vector<Word>::iterator iter = rstate.begin();
     while(iter != rstate.end())
