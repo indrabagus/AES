@@ -79,10 +79,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\xkaes.cpp" />
-    <ClCompile Include="MainTest.cpp" />
+    <ClCompile Include="Aes128Test.cpp" />
+    <ClCompile Include="Aes192Test.cpp" />
+    <ClCompile Include="Aes256.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\xkaes.h" />
+    <ClInclude Include="AesTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
